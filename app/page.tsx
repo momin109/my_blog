@@ -27,11 +27,19 @@ function fmtDate(d?: string) {
 }
 
 export default async function Home() {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+  // const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+
+  const baseUrl =
+    process.env.NEXT_PUBLIC_SITE_URL || process.env.VERCEL_URL
+      ? `https://${process.env.VERCEL_URL}`
+      : "http://localhost:3000";
 
   const res = await fetch(`${baseUrl}/api/posts?home=1&limit=6`, {
     cache: "no-store",
   });
+  // const res = await fetch("/api/posts?home=1&limit=6", {
+  //   cache: "no-store",
+  // });
   const { featured, latest }: { featured: ApiPost | null; latest: ApiPost[] } =
     await res.json();
 
