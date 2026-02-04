@@ -60,7 +60,7 @@ export default async function Home() {
     category: p.category || "General",
     author: { name: "Editor", avatar: authorImg },
     date: fmtDate(p.createdAt),
-    // readTime: "5 min read",
+    readTime: "5 min read",
   }));
 
   return (
