@@ -85,10 +85,10 @@ export default function Contact() {
                     For general inquiries and submissions
                   </p>
                   <a
-                    href="mailto:hello@editorial.com"
+                    href="mailto:mdabdur.int@gmail.com"
                     className="font-medium hover:text-primary transition-colors"
                   >
-                    hello@editorial.com
+                    mdabdur.int@gmail.com
                   </a>
                 </div>
               </CardContent>
@@ -125,7 +125,7 @@ export default function Contact() {
                   <p className="text-muted-foreground text-sm mb-2">
                     Mon-Fri from 8am to 5pm
                   </p>
-                  <p className="font-medium">+1 (555) 000-0000</p>
+                  <p className="font-medium">+4407366571030</p>
                 </div>
               </CardContent>
             </Card>

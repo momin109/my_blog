@@ -25,6 +25,11 @@ type PostData = {
   status: Status;
 };
 
+type Notice = {
+  type: "success" | "error" | "info";
+  text: string;
+};
+
 export default function EditPost() {
   const params = useParams<{ id: string }>();
   const id = params.id;
@@ -33,18 +38,35 @@ export default function EditPost() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
+  const [notice, setNotice] = useState<Notice | null>(null);
+
   const computedSlug = useMemo(() => slugify(data?.title || ""), [data?.title]);
+
+  function showNotice(n: Notice, autoHideMs = 3500) {
+    setNotice(n);
+    if (autoHideMs > 0) {
+      window.setTimeout(() => setNotice(null), autoHideMs);
+    }
+  }
 
   async function load() {
     setLoading(true);
+    setNotice(null);
     try {
       const res = await fetch(`/api/admin/posts/${id}`, { cache: "no-store" });
       const json = await res.json();
+
       if (!res.ok) {
-        alert("Post not found.");
-        window.location.href = "/admin/posts";
+        showNotice(
+          { type: "error", text: "Post not found. Redirecting..." },
+          2000,
+        );
+        window.setTimeout(() => {
+          window.location.href = "/admin/posts";
+        }, 800);
         return;
       }
+
       const p = json.post;
       setData({
         _id: p._id ?? p.id,
@@ -57,6 +79,11 @@ export default function EditPost() {
         coverUrl: p.coverUrl ?? null,
         status: p.status ?? "DRAFT",
       });
+    } catch {
+      showNotice(
+        { type: "error", text: "Failed to load post. Please refresh." },
+        0,
+      );
     } finally {
       setLoading(false);
     }
@@ -71,6 +98,8 @@ export default function EditPost() {
     if (!data) return;
 
     setSaving(true);
+    setNotice(null);
+
     try {
       const res = await fetch(`/api/admin/posts/${id}`, {
         method: "PATCH",
@@ -83,18 +112,23 @@ export default function EditPost() {
           tags: data.tags,
           coverUrl: data.coverUrl || undefined,
           status: status ?? data.status,
-          // keep slug synced with title (optional)
           slug: computedSlug || data.slug,
         }),
       });
 
       if (!res.ok) {
-        alert("Failed to update.");
+        let msg = "Failed to update. Please try again.";
+        try {
+          const err = await res.json();
+          msg = err?.error || err?.message || msg;
+        } catch {}
+        showNotice({ type: "error", text: msg }, 0);
         return;
       }
 
       const json = await res.json();
       const p = json.post;
+
       setData((prev) =>
         prev
           ? {
@@ -104,23 +138,63 @@ export default function EditPost() {
             }
           : prev,
       );
-      alert("Updated!");
+
+      showNotice({ type: "success", text: "Saved successfully ✅" });
+    } catch {
+      showNotice(
+        { type: "error", text: "Network error. Please try again." },
+        0,
+      );
     } finally {
       setSaving(false);
     }
   }
 
   async function onDelete() {
-    const ok = confirm("Delete this story? This action cannot be undone.");
+    const ok = window.confirm(
+      "Delete this story? This action cannot be undone.",
+    );
     if (!ok) return;
 
-    const res = await fetch(`/api/admin/posts/${id}`, { method: "DELETE" });
-    if (!res.ok) {
-      alert("Failed to delete.");
-      return;
+    setSaving(true);
+    setNotice(null);
+
+    try {
+      const res = await fetch(`/api/admin/posts/${id}`, { method: "DELETE" });
+
+      if (!res.ok) {
+        let msg = "Failed to delete.";
+        try {
+          const err = await res.json();
+          msg = err?.error || err?.message || msg;
+        } catch {}
+        showNotice({ type: "error", text: msg }, 0);
+        return;
+      }
+
+      showNotice(
+        { type: "success", text: "Deleted successfully. Redirecting..." },
+        1500,
+      );
+      window.setTimeout(() => {
+        window.location.href = "/admin/posts";
+      }, 700);
+    } catch {
+      showNotice(
+        { type: "error", text: "Network error. Please try again." },
+        0,
+      );
+    } finally {
+      setSaving(false);
     }
-    window.location.href = "/admin/posts";
   }
+
+  const noticeStyles =
+    notice?.type === "success"
+      ? "border-emerald-200 bg-emerald-50 text-emerald-800"
+      : notice?.type === "error"
+        ? "border-red-200 bg-red-50 text-red-800"
+        : "border-blue-200 bg-blue-50 text-blue-800";
 
   if (loading || !data) {
     return (
@@ -132,6 +206,17 @@ export default function EditPost() {
 
   return (
     <div>
+      {/* Top Notice */}
+      {notice && (
+        <div
+          className={`mb-6 rounded-lg border px-4 py-3 text-sm ${noticeStyles}`}
+          role="status"
+          aria-live="polite"
+        >
+          {notice.text}
+        </div>
+      )}
+
       <div className="flex items-center justify-between mb-8">
         <div className="flex items-center gap-4">
           <Link href="/admin/posts">
@@ -314,6 +399,7 @@ export default function EditPost() {
                 <option value="PUBLISHED">PUBLISHED</option>
                 <option value="SCHEDULED">SCHEDULED</option>
               </select>
+
               <Button
                 variant="outline"
                 className="w-full"
@@ -337,210 +423,3 @@ export default function EditPost() {
     </div>
   );
 }
-
-// "use client";
-
-// import { Button } from "@/components/ui/button";
-// import { Input } from "@/components/ui/input";
-// import { Textarea } from "@/components/ui/textarea";
-// import { Label } from "@/components/ui/label";
-// import { ArrowLeft, ImagePlus, UploadCloud, Trash2 } from "lucide-react";
-// import Link from "next/link";
-// import { useParams } from "next/navigation";
-// import { useEffect, useMemo, useState } from "react";
-// import Image from "next/image";
-
-// const heroImg = "/assets/hero-architecture.jpg";
-
-// // Mock Data for "Edit" simulation
-// const MOCK_POST_DATA = {
-//   "1": {
-//     title: "The Art of Slow Living in a Fast-Paced Digital World",
-//     content: "In an era defined by instant gratification...",
-//     excerpt: "Discovering how to disconnect to reconnect.",
-//     category: "Lifestyle",
-//     tags: "slow living, mindfulness, wellness",
-//     image: heroImg,
-//   },
-//   default: {
-//     title: "Draft Post Title",
-//     content: "Start writing here...",
-//     excerpt: "",
-//     category: "Design",
-//     tags: "",
-//     image: null as any, // allow null for mock
-//   },
-// };
-
-// type PostData = {
-//   title: string;
-//   content: string;
-//   excerpt: string;
-//   category: string;
-//   tags: string;
-//   image: any | null; // StaticImageData | null (kept loose for mock simplicity)
-// };
-
-// export default function EditPost() {
-//   const params = useParams<{ id?: string }>();
-//   const id = params?.id;
-
-//   const initialData: PostData = useMemo(() => {
-//     if (id && (MOCK_POST_DATA as any)[id]) return (MOCK_POST_DATA as any)[id];
-//     return MOCK_POST_DATA.default;
-//   }, [id]);
-
-//   const [data, setData] = useState<PostData>(initialData);
-
-//   // when id changes, update form
-//   useEffect(() => {
-//     setData(initialData);
-//   }, [initialData]);
-
-//   return (
-//     <div>
-//       <div className="flex items-center justify-between mb-8">
-//         <div className="flex items-center gap-4">
-//           <Link href="/admin/posts">
-//             <Button variant="ghost" size="icon" aria-label="Back">
-//               <ArrowLeft className="w-4 h-4" />
-//             </Button>
-//           </Link>
-
-//           <div>
-//             <div className="flex items-center gap-2">
-//               <h1 className="text-3xl font-serif font-bold text-foreground">
-//                 Edit Story
-//               </h1>
-//               <span className="text-xs bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full uppercase tracking-wider font-medium">
-//                 Published
-//               </span>
-//             </div>
-//             <p className="text-muted-foreground mt-1">
-//               Last edited 2 hours ago
-//             </p>
-//           </div>
-//         </div>
-
-//         <div className="flex gap-3">
-//           <Button
-//             variant="ghost"
-//             className="text-destructive hover:text-destructive hover:bg-destructive/10"
-//             type="button"
-//           >
-//             <Trash2 className="w-4 h-4 mr-2" /> Delete
-//           </Button>
-
-//           <Button variant="outline" type="button">
-//             Save Draft
-//           </Button>
-
-//           <Button
-//             className="bg-primary text-primary-foreground hover:bg-primary/90 gap-2"
-//             type="button"
-//           >
-//             <UploadCloud className="w-4 h-4" /> Update
-//           </Button>
-//         </div>
-//       </div>
-
-//       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-//         {/* Main Editor */}
-//         <div className="lg:col-span-2 space-y-6">
-//           <div className="space-y-4">
-//             <Input
-//               value={data.title}
-//               onChange={(e) =>
-//                 setData((p) => ({ ...p, title: e.target.value }))
-//               }
-//               placeholder="Post title"
-//               className="text-4xl font-serif font-bold border-none px-0 shadow-none h-auto placeholder:text-muted-foreground/30 focus-visible:ring-0 bg-transparent"
-//             />
-
-//             <Textarea
-//               value={data.content}
-//               onChange={(e) =>
-//                 setData((p) => ({ ...p, content: e.target.value }))
-//               }
-//               placeholder="Start writing here..."
-//               className="min-h-[500px] resize-none border-none p-0 shadow-none text-lg leading-relaxed focus-visible:ring-0 bg-transparent placeholder:text-muted-foreground/30"
-//             />
-//           </div>
-//         </div>
-
-//         {/* Sidebar Settings */}
-//         <div className="space-y-6">
-//           <div className="bg-card border border-border rounded-xl p-6 shadow-sm space-y-6">
-//             <div className="space-y-2">
-//               <Label>Cover Image</Label>
-
-//               <div className="aspect-video bg-secondary/30 rounded-lg border-2 border-dashed border-border flex flex-col items-center justify-center text-muted-foreground overflow-hidden relative group">
-//                 {data.image ? (
-//                   <>
-//                     <Image
-//                       src={data.image}
-//                       alt="Cover"
-//                       fill
-//                       className="object-cover"
-//                       sizes="(max-width: 1024px) 100vw, 33vw"
-//                       priority
-//                     />
-//                     <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer text-white font-medium">
-//                       Change Image
-//                     </div>
-//                   </>
-//                 ) : (
-//                   <button
-//                     type="button"
-//                     className="flex flex-col items-center cursor-pointer hover:text-primary transition-colors"
-//                   >
-//                     <ImagePlus className="w-8 h-8 mb-2" />
-//                     <span className="text-sm">Upload Cover</span>
-//                   </button>
-//                 )}
-//               </div>
-//             </div>
-
-//             <div className="space-y-2">
-//               <Label>Category</Label>
-//               <select
-//                 value={data.category}
-//                 onChange={(e) =>
-//                   setData((p) => ({ ...p, category: e.target.value }))
-//                 }
-//                 className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm"
-//               >
-//                 <option>Design</option>
-//                 <option>Lifestyle</option>
-//                 <option>Culture</option>
-//                 <option>Travel</option>
-//               </select>
-//             </div>
-
-//             <div className="space-y-2">
-//               <Label>Excerpt</Label>
-//               <Textarea
-//                 value={data.excerpt}
-//                 onChange={(e) =>
-//                   setData((p) => ({ ...p, excerpt: e.target.value }))
-//                 }
-//                 className="h-24 resize-none"
-//               />
-//             </div>
-
-//             <div className="space-y-2">
-//               <Label>Tags</Label>
-//               <Input
-//                 value={data.tags}
-//                 onChange={(e) =>
-//                   setData((p) => ({ ...p, tags: e.target.value }))
-//                 }
-//                 placeholder="comma, separated, tags"
-//               />
-//             </div>
-//           </div>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// }

@@ -73,6 +73,7 @@ export default function AdminPosts() {
         cache: "no-store",
       });
       const data = await res.json();
+
       setPosts(
         (data?.posts ?? []).map((p: any) => ({ ...p, _id: p._id ?? p.id })),
       );
@@ -232,9 +233,9 @@ export default function AdminPosts() {
                     {formatDate(post.updatedAt || post.createdAt)}
                   </TableCell>
 
-                  <TableCell className="text-right text-muted-foreground">
+                  {/* <TableCell className="text-right text-muted-foreground">
                     {(post.views ?? 0).toLocaleString()}
-                  </TableCell>
+                  </TableCell> */}
 
                   <TableCell>
                     <DropdownMenu>
@@ -249,11 +250,11 @@ export default function AdminPosts() {
                       </DropdownMenuTrigger>
 
                       <DropdownMenuContent align="end">
-                        <Link href={`/post/${post.slug}`}>
+                        {/* <Link href={`/post/${post.slug}`}>
                           <DropdownMenuItem className="gap-2 cursor-pointer">
                             <Eye className="h-4 w-4" /> View Live
                           </DropdownMenuItem>
-                        </Link>
+                        </Link> */}
 
                         <Link href={`/admin/posts/edit-post/${post._id}`}>
                           <DropdownMenuItem className="gap-2 cursor-pointer">

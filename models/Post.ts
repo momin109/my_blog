@@ -14,6 +14,13 @@ export type PostDoc = {
   status: PostStatus;
   views: number;
   authorId: Types.ObjectId;
+
+  // ✅ Guest blog support
+  isGuest: boolean;
+  guest?: {
+    name: string;
+    email: string;
+  };
   createdAt: Date;
   updatedAt: Date;
 };
@@ -34,7 +41,15 @@ const PostSchema = new Schema<PostDoc>(
     },
     views: { type: Number, default: 0 },
     authorId: { type: Schema.Types.ObjectId, required: true, ref: "User" },
+
+    // ✅ guest add
+    isGuest: { type: Boolean, default: false },
+    guest: {
+      name: { type: String },
+      email: { type: String },
+    },
   },
+
   { timestamps: true },
 );
 

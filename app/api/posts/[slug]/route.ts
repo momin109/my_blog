@@ -19,16 +19,11 @@ export async function GET(_: Request, ctx: Ctx) {
     query.slug = slug;
   }
 
-  console.log("param slug:", slug);
-
   const bySlug = await Post.findOne({ slug }).select("slug status").lean();
   const byId =
     Types.ObjectId.isValid(slug) && slug.length === 24
       ? await Post.findById(slug).select("slug status").lean()
       : null;
-
-  console.log("bySlug:", bySlug);
-  console.log("byId:", byId);
 
   const post = await Post.findOne(query)
     .select("title slug content excerpt category tags coverUrl createdAt")

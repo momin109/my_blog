@@ -27,8 +27,6 @@ async function main() {
     passwordHash,
     role: "admin",
   });
-
-  console.log(`✅ Admin created: ${email}`);
 }
 
 main()

@@ -25,7 +25,10 @@ import {
   Users,
   LogOut,
   PlusCircle,
+  MessageSquare,
+  Mail,
   BarChart3,
+  Info,
 } from "lucide-react";
 
 export default function AdminLayout({
@@ -37,8 +40,11 @@ export default function AdminLayout({
 
   const navigation = [
     { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
-    { name: "Posts", href: "/admin/posts", icon: FileText },
-    { name: "Contacts", href: "/admin/contacts", icon: FileText },
+    { name: "Admin Posts", href: "/admin/posts", icon: FileText },
+    { name: "Guest Posts", href: "/admin/guest-posts", icon: Users },
+    { name: "Comments", href: "/admin/comments", icon: MessageSquare },
+    { name: "Contacts", href: "/admin/contacts", icon: Mail },
+    { name: "About", href: "/admin/about", icon: Info },
   ];
 
   const isActive = (path: string) => {
@@ -54,7 +60,7 @@ export default function AdminLayout({
         <div className="h-16 flex items-center px-6 border-b border-border">
           <Link href="/">
             <span className="font-serif font-bold text-xl cursor-pointer">
-              Editorial.
+              muktobaak.
             </span>
           </Link>
           <span className="ml-2 text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full uppercase tracking-wider font-medium">

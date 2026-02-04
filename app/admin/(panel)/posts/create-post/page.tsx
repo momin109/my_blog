@@ -120,18 +120,37 @@ export default function CreatePost() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Main Editor */}
         <div className="lg:col-span-2 space-y-6">
-          <div className="space-y-4">
+          <div className="space-y-4 ">
             <Input
               placeholder="Enter title..."
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="text-4xl font-serif font-bold border-none px-0 shadow-none h-auto placeholder:text-muted-foreground/30 focus-visible:ring-0 bg-transparent"
+              className="
+    text-4xl font-serif font-bold
+    px-3 py-2 h-auto
+    border-2
+    rounded-md
+    hover:border-2 hover:border-primary
+    focus:border-2 focus:border-primary
+    focus-visible:ring-0
+    placeholder:text-muted-foreground/40
+  "
             />
             <Textarea
               placeholder="Tell your story..."
               value={content}
               onChange={(e) => setContent(e.target.value)}
-              className="min-h-[500px] resize-none border-none p-0 shadow-none text-lg leading-relaxed focus-visible:ring-0 bg-transparent placeholder:text-muted-foreground/30"
+              className="
+    min-h-[500px] resize-none
+    text-lg leading-relaxed
+    px-3 py-3
+    border-2
+    rounded-md
+    hover:border-2 hover:border-primary
+    focus:border-2 focus:border-primary
+    focus-visible:ring-0
+    placeholder:text-muted-foreground/40
+  "
             />
           </div>
         </div>
@@ -252,97 +271,3 @@ export default function CreatePost() {
     </div>
   );
 }
-
-// "use client";
-
-// // import { AdminLayout } from "./layout";
-// import { Button } from "@/components/ui/button";
-// import { Input } from "@/components/ui/input";
-// import { Textarea } from "@/components/ui/textarea";
-// import { Label } from "@/components/ui/label";
-// import { ArrowLeft, Save, ImagePlus, UploadCloud } from "lucide-react";
-// // import { Link } from "wouter";
-// import Link from "next/link";
-
-// export default function CreatePost() {
-//   return (
-//     <div>
-//       <div className="flex items-center justify-between mb-8">
-//         <div className="flex items-center gap-4">
-//           <Link href="/admin/posts">
-//             <Button variant="ghost" size="icon">
-//               <ArrowLeft className="w-4 h-4" />
-//             </Button>
-//           </Link>
-//           <div>
-//             <h1 className="text-3xl font-serif font-bold text-foreground">
-//               New Story
-//             </h1>
-//             <p className="text-muted-foreground mt-1">
-//               Write something beautiful.
-//             </p>
-//           </div>
-//         </div>
-//         <div className="flex gap-3">
-//           <Button variant="outline">Save Draft</Button>
-//           <Button className="bg-primary text-primary-foreground hover:bg-primary/90 gap-2">
-//             <UploadCloud className="w-4 h-4" /> Publish
-//           </Button>
-//         </div>
-//       </div>
-
-//       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-//         {/* Main Editor */}
-//         <div className="lg:col-span-2 space-y-6">
-//           <div className="space-y-4">
-//             <Input
-//               placeholder="Enter title..."
-//               className="text-4xl font-serif font-bold border-none px-0 shadow-none h-auto placeholder:text-muted-foreground/30 focus-visible:ring-0 bg-transparent"
-//             />
-//             <Textarea
-//               placeholder="Tell your story..."
-//               className="min-h-[500px] resize-none border-none p-0 shadow-none text-lg leading-relaxed focus-visible:ring-0 bg-transparent placeholder:text-muted-foreground/30"
-//             />
-//           </div>
-//         </div>
-
-//         {/* Sidebar Settings */}
-//         <div className="space-y-6">
-//           <div className="bg-card border border-border rounded-xl p-6 shadow-sm space-y-6">
-//             <div className="space-y-2">
-//               <Label>Cover Image</Label>
-//               <div className="aspect-video bg-secondary/30 rounded-lg border-2 border-dashed border-border flex flex-col items-center justify-center text-muted-foreground hover:bg-secondary/50 hover:border-primary/50 transition-colors cursor-pointer">
-//                 <ImagePlus className="w-8 h-8 mb-2" />
-//                 <span className="text-sm">Upload Cover</span>
-//               </div>
-//             </div>
-
-//             <div className="space-y-2">
-//               <Label>Category</Label>
-//               <select className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm">
-//                 <option>Select category...</option>
-//                 <option>Design</option>
-//                 <option>Lifestyle</option>
-//                 <option>Culture</option>
-//                 <option>Travel</option>
-//               </select>
-//             </div>
-
-//             <div className="space-y-2">
-//               <Label>Excerpt</Label>
-//               <Textarea
-//                 placeholder="Short summary..."
-//                 className="h-24 resize-none"
-//               />
-//             </div>
-
-//             <div className="space-y-2">
-//               <Label>Tags</Label>
-//               <Input placeholder="Add tags (comma separated)..." />
-//             </div>
-//           </div>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// }
